@@ -1,27 +1,31 @@
 import axios from "axios";
 import type { Movie } from "../types/movie";
 
-const BASE_URL = "https://api.themoviedb.org/3/search/movie";
+const BASE_URL = "https://themoviedb.org";
 
+// ВЫПОЛНЕНО: Объявили именованный интерфейс в этом же файле
+export interface MoviesResponse {
+  results: Movie[];
+  total_pages: number;
+}
+
+// Избавились от инлайновой типизации в сигнатуре функции и в дженерике axios.get
 export const fetchMovies = async (
   query: string,
   page: number,
-): Promise<{ results: Movie[]; total_pages: number }> => {
-  const { data } = await axios.get<{ results: Movie[]; total_pages: number }>(
-    BASE_URL,
-    {
-      params: {
-        query,
-        page,
-        include_adult: false,
-        language: "en-US",
-      },
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,
-        Accept: "application/json",
-      },
+): Promise<MoviesResponse> => {
+  const { data } = await axios.get<MoviesResponse>(BASE_URL, {
+    params: {
+      query,
+      page,
+      include_adult: false,
+      language: "en-US",
     },
-  );
+    headers: {
+      Authorization: `Bearer ${import.meta.env.VITE_TMDB_TOKEN}`,
+      Accept: "application/json",
+    },
+  });
 
   return {
     results: data.results,
