@@ -1,29 +1,26 @@
-import type { FormEvent } from "react";
 import toast from "react-hot-toast";
 import css from "./SearchBar.module.css";
 
+// Типизация пропсов через interface согласно ТЗ
 interface SearchBarProps {
   onSubmit: (query: string) => void;
 }
 
 function SearchBar({ onSubmit }: SearchBarProps) {
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  // Функция-экшен для обработки отправки формы через React 19 Action
+  // Она автоматически принимает объект FormData в качестве параметра
+  const handleFormAction = (formData: FormData) => {
+    // Извлекаем значение инпута по его атрибуту 'name'
+    const queryValue = formData.get("query") as string;
 
-    const form = event.currentTarget;
-
-    const query = (
-      form.elements.namedItem("query") as HTMLInputElement
-    ).value.trim();
-
-    if (!query) {
+    // Валидация на пустую строку
+    if (!queryValue || queryValue.trim() === "") {
       toast.error("Please enter your search query.");
       return;
     }
 
-    onSubmit(query);
-
-    form.reset();
+    // Передаем очищенное значение в родительский компонент App
+    onSubmit(queryValue.trim());
   };
 
   return (
@@ -38,11 +35,12 @@ function SearchBar({ onSubmit }: SearchBarProps) {
           Powered by TMDB
         </a>
 
-        <form className={css.form} onSubmit={handleSubmit}>
+        {/* ИСПОЛЬЗУЕМ АТРИБУТ action вместо onSubmit (preventDefault больше не нужен) */}
+        <form className={css.form} action={handleFormAction}>
           <input
             className={css.input}
             type="text"
-            name="query"
+            name="query" // Обязательный атрибут для formData.get("query")
             autoComplete="off"
             placeholder="Search movies..."
             autoFocus

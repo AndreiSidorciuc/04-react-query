@@ -17,6 +17,11 @@ import type { Movie } from "../../types/movie";
 
 import css from "./App.module.css";
 
+interface MoviesResponse {
+  results: Movie[];
+  total_pages: number;
+}
+
 type ModuleWithDefault<T> = {
   default: T;
 };
@@ -32,7 +37,8 @@ export default function App() {
   const [page, setPage] = useState(1);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
 
-  const { data, isLoading, isError } = useQuery({
+  // Передаем MoviesResponse в качестве дженерика для useQuery
+  const { data, isLoading, isError } = useQuery<MoviesResponse>({
     queryKey: ["movies", query, page],
     queryFn: () => fetchMovies(query, page),
     enabled: query !== "",
@@ -68,13 +74,15 @@ export default function App() {
 
       {data && data.results.length > 0 && (
         <>
-          {/* ПЕРЕНЕСЛИ НАВЕРХ: Пагинация рендерится перед сеткой фильмов */}
           {data.total_pages > 1 && (
             <ReactPaginate
               pageCount={Math.min(data.total_pages, 500)}
               pageRangeDisplayed={5}
               marginPagesDisplayed={1}
-              onPageChange={({ selected }) => setPage(selected + 1)}
+              // Явно типизировали selected: number для избежания ошибки implicit any
+              onPageChange={({ selected }: { selected: number }) =>
+                setPage(selected + 1)
+              }
               forcePage={page - 1}
               containerClassName={css.pagination}
               activeClassName={css.active}
@@ -83,7 +91,6 @@ export default function App() {
             />
           )}
 
-          {/* Сетка фильмов теперь идет после пагинации */}
           <MovieGrid movies={data.results} onSelect={setSelectedMovie} />
         </>
       )}
