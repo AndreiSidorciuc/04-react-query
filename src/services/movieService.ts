@@ -1,7 +1,8 @@
 import axios from "axios";
 import type { Movie } from "../types/movie";
 
-const BASE_URL = "https://themoviedb.org";
+// ИСПРАВЛЕНО: Указан корректный URL-адрес для запросов к API TMDB
+const BASE_URL = "https://api.themoviedb.org/3/search/movie";
 
 // ВЫПОЛНЕНО: Объявили именованный интерфейс в этом же файле
 export interface MoviesResponse {
